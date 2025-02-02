@@ -3,7 +3,7 @@ package com.zufarov.pastebinV1.pet;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-// just testing git
+// just testing git 2
 @EnableFeignClients
 @SpringBootApplication
 public class PetApplication {
