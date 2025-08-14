@@ -1,5 +1,6 @@
 package com.zufarov.pastebinV1.pet.components;
 
+import com.zufarov.pastebinV1.pet.repositories.IAuthenticationFacade;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

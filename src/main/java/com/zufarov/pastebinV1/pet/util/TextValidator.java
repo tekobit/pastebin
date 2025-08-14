@@ -1,6 +1,5 @@
 package com.zufarov.pastebinV1.pet.util;
 
-import com.zufarov.pastebinV1.pet.models.Paste;
 import com.zufarov.pastebinV1.pet.models.User;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

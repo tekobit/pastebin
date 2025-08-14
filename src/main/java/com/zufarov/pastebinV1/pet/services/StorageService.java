@@ -4,13 +4,13 @@ package com.zufarov.pastebinV1.pet.services;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
-import com.zufarov.pastebinV1.pet.models.Paste;
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPaste;
 import com.zufarov.pastebinV1.pet.models.RequestModels.CreateRequestPaste;
+import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPaste;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -23,53 +23,35 @@ public class StorageService {
     private String bucketName;
 
     private final AmazonS3 s3Client;
-    private final TokenService tokenService;
-    private final DataBaseService dataBaseService;
+    private final CacheService cacheService;
 
-    public StorageService(AmazonS3 s3Client, TokenService tokenService, DataBaseService dataBaseService) {
+
+    public StorageService(AmazonS3 s3Client, CacheService cacheService) {
         this.s3Client = s3Client;
-        this.tokenService = tokenService;
-        this.dataBaseService = dataBaseService;
+        this.cacheService = cacheService;
     }
 
-    public String uploadPaste(CreateRequestPaste paste) {
-        String fileName = tokenService.getUniqueId();
+
+    public String uploadPasteToStorage(CreateRequestPaste paste,String fileName) {
         s3Client.putObject(bucketName, fileName, paste.getContent());
-        String pasteURL = String.valueOf(s3Client.getUrl(bucketName,fileName));
-        dataBaseService.savePasteMetadata(paste,fileName,pasteURL);
-        return fileName + "was successfully saved";
+        cacheService.putPasteContentToCache(paste.getContent(),fileName);
+        return String.valueOf(s3Client.getUrl(bucketName,fileName));
     }
 
-    public RequestPaste getPasteFromStorage(String pasteId) {
-        Paste pasteMetadata = dataBaseService.getPasteMetadata(pasteId);
+    @Cacheable(value = "pasteContentCache")
+    public String getPasteFromStorage(String pasteId) throws IOException {
         S3Object s3Object = s3Client.getObject(bucketName, pasteId);
-        S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
-        try {
-            RequestPaste requestPaste = new RequestPaste();
-            requestPaste.setContent(IOUtils.toString(s3ObjectInputStream));
-            requestPaste.setId(pasteMetadata.getId());
-            requestPaste.setCreatedAt(pasteMetadata.getCreatedAt());
-            requestPaste.setExpiresAt(pasteMetadata.getExpiresAt());
-            requestPaste.setTitle(pasteMetadata.getTitle());
-            requestPaste.setVisibility(pasteMetadata.getVisibility());
-            requestPaste.setUserId(pasteMetadata.getOwner().getId());
-            return requestPaste;
-        } catch (IOException e) {
-            log.error("error during getting paste content");
-        }
-        return null;
+        return IOUtils.toString(s3Object.getObjectContent());
     }
 
-    public String deletePasteFromStorage(String pasteID) {
-        dataBaseService.deletePasteMetadata(pasteID);
-        s3Client.deleteObject(bucketName,pasteID);
-        return pasteID + " was successfully deleted";
+    @CacheEvict(value = "pasteContentCache")
+    public void deletePasteFromStorage(String pasteId) {
+        s3Client.deleteObject(bucketName,pasteId);
     }
 
-    public String updatePasteInStorage(RequestPaste paste) {
-        dataBaseService.updatePasteMetadata(paste);
+    public void updatePasteInStorage(RequestPaste paste) {
         s3Client.putObject(bucketName,paste.getId(),paste.getContent());
-        return paste.getId() + " was successfully updated";
+        cacheService.putPasteContentToCache(paste.getContent(),paste.getId());
     }
 
 }

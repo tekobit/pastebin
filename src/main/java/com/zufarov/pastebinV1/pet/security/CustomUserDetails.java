@@ -1,16 +1,19 @@
 package com.zufarov.pastebinV1.pet.security;
 
 import com.zufarov.pastebinV1.pet.models.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public class UserDetails implements org.springframework.security.core.userdetails.UserDetails {
+@Getter
+public class CustomUserDetails implements UserDetails {
     private final User user;
 
-    public UserDetails(User user) {
+    public CustomUserDetails(User user) {
         this.user = user;
     }
 
@@ -21,19 +24,14 @@ public class UserDetails implements org.springframework.security.core.userdetail
 
     @Override
     public String getPassword() {
-
         return this.user.getPassword();
-    }
-
-    public User getUser() {
-        return user;
     }
 
     @Override
     public String getUsername() {
         return this.user.getName();
     }
-
+//TODO убери заглушки
     @Override
     public boolean isAccountNonExpired() {
         return true;

@@ -1,20 +1,18 @@
 package com.zufarov.pastebinV1.pet.models;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "Users", schema = "public")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -45,33 +43,6 @@ public class User {
     // connect to permissions table
     @OneToMany(mappedBy = "user")
     private List<Permission> permissions;
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", createdAt=" + createdAt +
-                ", lastLogin=" + lastLogin +
-                ", role='" + role + '\'' +
-                ", owningPastes=" + owningPastes +
-                ", permissions=" + permissions +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return id == user.id && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(createdAt, user.createdAt) && Objects.equals(lastLogin, user.lastLogin) && Objects.equals(role, user.role) && Objects.equals(owningPastes, user.owningPastes) && Objects.equals(permissions, user.permissions);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, email, password, createdAt, lastLogin, role, owningPastes, permissions);
-    }
 
     public User(String name, String email) {
         this.name = name;

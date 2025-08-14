@@ -1,4 +1,4 @@
-//Still useless shit
+//Still useless shit  ||  may be used to grant admin permissions idk
 
 package com.zufarov.pastebinV1.pet.services;
 

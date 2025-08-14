@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
+import org.springframework.lang.NonNull;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +16,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Paste {
+public class Paste implements Serializable {
     @Id
+    @NonNull
     @Column(name = "id")
     private String id;
 
@@ -74,4 +76,5 @@ public class Paste {
     public int hashCode() {
         return Objects.hash(id, title, contentLocation, createdAt, expiresAt, visibility, lastVisited, permissions, owner);
     }
+
 }

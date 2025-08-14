@@ -2,9 +2,8 @@
 
 package com.zufarov.pastebinV1.pet.services;
 
+import com.zufarov.pastebinV1.pet.repositories.TokenClient;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TokenService {

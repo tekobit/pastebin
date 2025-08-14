@@ -1,10 +1,11 @@
 package com.zufarov.pastebinV1.pet.models.RequestModels;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -20,7 +21,6 @@ public class CreateRequestPaste {
     private String content;
 
     private String customId;
-
 
     @Override
     public boolean equals(Object o) {
@@ -44,4 +44,5 @@ public class CreateRequestPaste {
                 ", customId='" + customId + '\'' +
                 '}';
     }
+
 }

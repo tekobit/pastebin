@@ -29,7 +29,7 @@ public class RequestPermission {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         RequestPermission that = (RequestPermission) o;
-        return username == that.username && Objects.equals(type, that.type) && Objects.equals(pasteId, that.pasteId);
+        return Objects.equals(username, that.username) && Objects.equals(type, that.type) && Objects.equals(pasteId, that.pasteId);
     }
 
     @Override

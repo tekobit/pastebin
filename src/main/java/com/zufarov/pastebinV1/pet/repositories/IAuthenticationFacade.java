@@ -1,4 +1,4 @@
-package com.zufarov.pastebinV1.pet.components;
+package com.zufarov.pastebinV1.pet.repositories;
 
 import org.springframework.security.core.Authentication;
 

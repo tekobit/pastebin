@@ -1,20 +1,20 @@
 package com.zufarov.pastebinV1.pet.models;
 
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Permissions",schema = "public")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Permission {
+public class Permission implements Serializable {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
