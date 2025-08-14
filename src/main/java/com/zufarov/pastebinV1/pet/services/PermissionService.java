@@ -3,7 +3,7 @@ package com.zufarov.pastebinV1.pet.services;
 import com.zufarov.pastebinV1.pet.components.AuthenticationFacade;
 import com.zufarov.pastebinV1.pet.models.Paste;
 import com.zufarov.pastebinV1.pet.models.Permission;
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPermission;
+import com.zufarov.pastebinV1.pet.dtos.PermissionDto;
 import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.repositories.PastesRepository;
 import com.zufarov.pastebinV1.pet.repositories.PermissionsRepository;
@@ -34,13 +34,13 @@ public class PermissionService {
     }
 
     @Transactional
-    public String savePermission(RequestPermission requestPermission) {
-        checkIfCurrentUserOwner(cacheService.findPermission(requestPermission,authenticationFacade.getAuthentication().getName()));
-        checkIfPermissionAlreadyExists(requestPermission);
+    public String savePermission(PermissionDto permissionDto) {
+        checkIfCurrentUserOwner(cacheService.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
+        checkIfPermissionAlreadyExists(permissionDto);
         Permission permission = new Permission();
-        permission.setType(requestPermission.getType());
-        Optional<User> optionalUser = usersRepository.findByName(requestPermission.getUsername());
-        Optional<Paste> optionalPaste = pastesRepository.findById(requestPermission.getPasteId());
+        permission.setType(permissionDto.getType());
+        Optional<User> optionalUser = usersRepository.findByName(permissionDto.getUsername());
+        Optional<Paste> optionalPaste = pastesRepository.findById(permissionDto.getPasteId());
         if (optionalUser.isEmpty() || optionalPaste.isEmpty()) {
             throw new NotFoundException("can't find user or paste");
         }
@@ -52,22 +52,22 @@ public class PermissionService {
     }
 
     @Transactional
-    public String editPermission(RequestPermission requestPermission) {
-        checkIfCurrentUserOwner(cacheService.findPermission(requestPermission,authenticationFacade.getAuthentication().getName()));
+    public String editPermission(PermissionDto permissionDto) {
+        checkIfCurrentUserOwner(cacheService.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
 
-        Permission permission = cacheService.findPermission(requestPermission, requestPermission.getUsername());
-        permission.setType(requestPermission.getType());
+        Permission permission = cacheService.findPermission(permissionDto, permissionDto.getUsername());
+        permission.setType(permissionDto.getType());
         permissionsRepository.save(permission);
         cacheService.putPermissionToCache(permission);
         return "permission has been updated successfully";
     }
 
     @Transactional
-    @CacheEvict(value = "permissionCache",key = "{#requestPermission.pasteId,#requestPermission.username}")
-    public String deletePermission(RequestPermission requestPermission) {
-        checkIfCurrentUserOwner(cacheService.findPermission(requestPermission,authenticationFacade.getAuthentication().getName()));
+    @CacheEvict(value = "permissionCache",key = "{#permissionDto.pasteId,#permissionDto.username}")
+    public String deletePermission(PermissionDto permissionDto) {
+        checkIfCurrentUserOwner(cacheService.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
 
-        Permission permission = cacheService.findPermission(requestPermission, requestPermission.getUsername());
+        Permission permission = cacheService.findPermission(permissionDto, permissionDto.getUsername());
         permissionsRepository.deletePermissionById(permission.getId());
         return "permission has been successfully deleted";
     }
@@ -91,9 +91,9 @@ public class PermissionService {
         }
     }
 
-    private void checkIfPermissionAlreadyExists(RequestPermission requestPermission) {
-        Optional<Paste> optionalPaste = pastesRepository.findById(requestPermission.getPasteId());
-        Optional<User> optionalUser = usersRepository.findByName(requestPermission.getUsername());
+    private void checkIfPermissionAlreadyExists(PermissionDto permissionDto) {
+        Optional<Paste> optionalPaste = pastesRepository.findById(permissionDto.getPasteId());
+        Optional<User> optionalUser = usersRepository.findByName(permissionDto.getUsername());
         if (optionalUser.isEmpty() || optionalPaste.isEmpty()) {
             throw new NotFoundException("can't find permission");
         }

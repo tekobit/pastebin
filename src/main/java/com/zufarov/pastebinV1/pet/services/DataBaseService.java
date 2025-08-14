@@ -3,10 +3,10 @@
 package com.zufarov.pastebinV1.pet.services;
 
 import com.zufarov.pastebinV1.pet.components.AuthenticationFacade;
+import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
+import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
 import com.zufarov.pastebinV1.pet.models.Paste;
 import com.zufarov.pastebinV1.pet.models.Permission;
-import com.zufarov.pastebinV1.pet.models.RequestModels.CreateRequestPaste;
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPaste;
 import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.repositories.PastesRepository;
 import com.zufarov.pastebinV1.pet.repositories.PermissionsRepository;
@@ -42,7 +42,7 @@ public class DataBaseService {
     }
 
     @Transactional
-    public void savePasteMetadata(CreateRequestPaste createRequestPaste, String pasteId, String Url) {
+    public void savePasteMetadata(PasteRequestDto createRequestPaste, String pasteId, String Url) {
         Paste paste = new Paste();
         paste.setId(pasteId);
         paste.setTitle(createRequestPaste.getTitle());
@@ -92,16 +92,16 @@ public class DataBaseService {
     }
 
     @Transactional
-    public void updatePasteMetadata(RequestPaste requestPaste) {
-        Optional<Paste> optionalPaste = pastesRepository.findById(requestPaste.getId());
+    public void updatePasteMetadata(PasteUpdateDto pasteUpdateDto, String id) {
+        Optional<Paste> optionalPaste = pastesRepository.findById(id);
         if (optionalPaste.isEmpty()) {
             throw new NotFoundException("there isn't paste with such id");
         }
         Paste pasteToUpdate = optionalPaste.get();
         checkIfUserHasRequiredPermission(pasteToUpdate,PermissionType.EDITOR);
-        pasteToUpdate.setExpiresAt(requestPaste.getExpiresAt());
-        pasteToUpdate.setTitle(requestPaste.getTitle());
-        pasteToUpdate.setVisibility(requestPaste.getVisibility());
+        pasteToUpdate.setExpiresAt(pasteUpdateDto.getExpiresAt());
+        pasteToUpdate.setTitle(pasteUpdateDto.getTitle());
+        pasteToUpdate.setVisibility(pasteUpdateDto.getVisibility());
         pastesRepository.save(pasteToUpdate);
         cacheService.putPasteMetadataToCache(pasteToUpdate, pasteToUpdate.getId());
     }

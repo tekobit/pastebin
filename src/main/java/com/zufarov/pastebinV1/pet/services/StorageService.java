@@ -5,8 +5,8 @@ package com.zufarov.pastebinV1.pet.services;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
-import com.zufarov.pastebinV1.pet.models.RequestModels.CreateRequestPaste;
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPaste;
+import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
+import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -32,7 +32,7 @@ public class StorageService {
     }
 
 
-    public String uploadPasteToStorage(CreateRequestPaste paste,String fileName) {
+    public String uploadPasteToStorage(PasteRequestDto paste, String fileName) {
         s3Client.putObject(bucketName, fileName, paste.getContent());
         cacheService.putPasteContentToCache(paste.getContent(),fileName);
         return String.valueOf(s3Client.getUrl(bucketName,fileName));
@@ -49,9 +49,9 @@ public class StorageService {
         s3Client.deleteObject(bucketName,pasteId);
     }
 
-    public void updatePasteInStorage(RequestPaste paste) {
-        s3Client.putObject(bucketName,paste.getId(),paste.getContent());
-        cacheService.putPasteContentToCache(paste.getContent(),paste.getId());
+    public void updatePasteInStorage(PasteUpdateDto paste, String id) {
+        s3Client.putObject(bucketName,id,paste.getContent());
+        cacheService.putPasteContentToCache(paste.getContent(),id);
     }
 
 }

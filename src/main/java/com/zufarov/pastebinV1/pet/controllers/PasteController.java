@@ -1,7 +1,8 @@
 package com.zufarov.pastebinV1.pet.controllers;
 
-import com.zufarov.pastebinV1.pet.models.RequestModels.CreateRequestPaste;
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPaste;
+import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
+import com.zufarov.pastebinV1.pet.dtos.PasteResponseDto;
+import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
 import com.zufarov.pastebinV1.pet.services.PasteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,14 +20,14 @@ public class PasteController {
     }
 
     @PostMapping("/pastes")
-    public ResponseEntity<String> createPaste(@RequestBody CreateRequestPaste paste) {
+    public ResponseEntity<String> createPaste(@RequestBody PasteRequestDto paste) {
         String resultMessage = pasteService.uploadPaste(paste);
         return new ResponseEntity<>(resultMessage, HttpStatus.CREATED);
     }
 
     @GetMapping("/pastes/{id}")
-    public ResponseEntity<RequestPaste> getPaste(@PathVariable String id) {
-        RequestPaste paste = pasteService.getPaste(id);
+    public ResponseEntity<PasteResponseDto> getPaste(@PathVariable String id) {
+        PasteResponseDto paste = pasteService.getPaste(id);
         return new ResponseEntity<>(paste,HttpStatus.OK);
     }
 
@@ -37,10 +38,8 @@ public class PasteController {
     }
 
     @PatchMapping("/pastes/{id}")
-    public ResponseEntity<String> editPaste(@PathVariable String id,@RequestBody RequestPaste paste) {
-        if (!id.equals(paste.getId())) return ResponseEntity.badRequest().build();
-
-        String resultMessage = pasteService.updatePaste(paste);
+    public ResponseEntity<String> editPaste(@PathVariable String id,@RequestBody PasteUpdateDto paste) {
+        String resultMessage = pasteService.updatePaste(paste,id);
         return new ResponseEntity<>(resultMessage,HttpStatus.NO_CONTENT);
     }
 

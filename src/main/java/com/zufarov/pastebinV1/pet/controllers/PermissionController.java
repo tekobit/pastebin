@@ -1,6 +1,6 @@
 package com.zufarov.pastebinV1.pet.controllers;
 
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPermission;
+import com.zufarov.pastebinV1.pet.dtos.PermissionDto;
 import com.zufarov.pastebinV1.pet.services.PermissionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,21 +16,21 @@ public class PermissionController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addPermission(@RequestBody RequestPermission requestPermission) {
-        String resultMessage = permissionService.savePermission(requestPermission);
+    public ResponseEntity<String> addPermission(@RequestBody PermissionDto permissionDto) {
+        String resultMessage = permissionService.savePermission(permissionDto);
         return new ResponseEntity<>(resultMessage, HttpStatus.CREATED);
     }
 
     @PatchMapping
-    public ResponseEntity<String> editPermission(@RequestBody RequestPermission requestPermission) {
-        String resultMessage = permissionService.editPermission(requestPermission);
+    public ResponseEntity<String> editPermission(@RequestBody PermissionDto permissionDto) {
+        String resultMessage = permissionService.editPermission(permissionDto);
         return new ResponseEntity<>(resultMessage, HttpStatus.NO_CONTENT);
 
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deletePermission(@RequestBody RequestPermission requestPermission) {
-        String resultMessage = permissionService.deletePermission(requestPermission);
+    public ResponseEntity<String> deletePermission(@RequestBody PermissionDto permissionDto) {
+        String resultMessage = permissionService.deletePermission(permissionDto);
         return new ResponseEntity<>(resultMessage, HttpStatus.NO_CONTENT);
 
     }

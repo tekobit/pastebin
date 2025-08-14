@@ -1,8 +1,9 @@
 package com.zufarov.pastebinV1.pet.services;
 
+import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
+import com.zufarov.pastebinV1.pet.dtos.PasteResponseDto;
+import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
 import com.zufarov.pastebinV1.pet.models.Paste;
-import com.zufarov.pastebinV1.pet.models.RequestModels.CreateRequestPaste;
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPaste;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,29 +23,29 @@ public class PasteService {
         this.storageService = storageService;
     }
 
-    public RequestPaste getPaste(String pasteId) {
+    public PasteResponseDto getPaste(String pasteId) {
         Paste pasteMetadata = dataBaseService.getPasteMetadata(pasteId);
         try {
             String pasteContent = storageService.getPasteFromStorage(pasteId);
 
-            RequestPaste requestPaste = new RequestPaste();
+            PasteResponseDto pasteResponseDto = new PasteResponseDto();
 
-            requestPaste.setContent(pasteContent);
-            requestPaste.setId(pasteMetadata.getId());
-            requestPaste.setCreatedAt(pasteMetadata.getCreatedAt());
-            requestPaste.setExpiresAt(pasteMetadata.getExpiresAt());
-            requestPaste.setTitle(pasteMetadata.getTitle());
-            requestPaste.setVisibility(pasteMetadata.getVisibility());
-            requestPaste.setUserId(pasteMetadata.getOwner().getId());
+            pasteResponseDto.setContent(pasteContent);
+            pasteResponseDto.setId(pasteMetadata.getId());
+            pasteResponseDto.setCreatedAt(pasteMetadata.getCreatedAt());
+            pasteResponseDto.setExpiresAt(pasteMetadata.getExpiresAt());
+            pasteResponseDto.setTitle(pasteMetadata.getTitle());
+            pasteResponseDto.setVisibility(pasteMetadata.getVisibility());
+            pasteResponseDto.setUserId(pasteMetadata.getOwner().getId());
 
-            return requestPaste;
+            return pasteResponseDto;
         } catch (IOException e) {
             log.error("error during getting paste content");
         }
         return null;
     }
 
-    public String uploadPaste(CreateRequestPaste paste) {
+    public String uploadPaste(PasteRequestDto paste) {
         String fileName = tokenService.getUniqueId();
         String pasteURL = storageService.uploadPasteToStorage(paste,fileName);
         dataBaseService.savePasteMetadata(paste,fileName,pasteURL);
@@ -57,9 +58,9 @@ public class PasteService {
         return pasteId + " was successfully deleted";
     }
 
-    public String updatePaste(RequestPaste paste) {
-        dataBaseService.updatePasteMetadata(paste);
-        storageService.updatePasteInStorage(paste);
-        return paste.getId() + " was successfully updated";
+    public String updatePaste(PasteUpdateDto paste, String id) {
+        dataBaseService.updatePasteMetadata(paste,id);
+        storageService.updatePasteInStorage(paste,id);
+        return id + " was successfully updated";
     }
 }

@@ -1,5 +1,6 @@
 package com.zufarov.pastebinV1.pet.controllers;
 
+import com.zufarov.pastebinV1.pet.dtos.UserRequestDto;
 import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.services.RegistrationService;
 import com.zufarov.pastebinV1.pet.util.UserValidator;
@@ -31,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<Void> registration(@RequestBody User user) {
+    public ResponseEntity<Void> registration(@RequestBody UserRequestDto user) {
         registrationService.register(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

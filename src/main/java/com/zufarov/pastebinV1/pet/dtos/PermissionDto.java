@@ -1,4 +1,4 @@
-package com.zufarov.pastebinV1.pet.models.RequestModels;
+package com.zufarov.pastebinV1.pet.dtos;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RequestPermission {
+public class PermissionDto {
     private String type;
 
     private String pasteId;
@@ -28,7 +28,7 @@ public class RequestPermission {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        RequestPermission that = (RequestPermission) o;
+        PermissionDto that = (PermissionDto) o;
         return Objects.equals(username, that.username) && Objects.equals(type, that.type) && Objects.equals(pasteId, that.pasteId);
     }
 

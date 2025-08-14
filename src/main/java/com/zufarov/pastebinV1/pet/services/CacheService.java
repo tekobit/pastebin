@@ -4,7 +4,7 @@ package com.zufarov.pastebinV1.pet.services;
 
 import com.zufarov.pastebinV1.pet.models.Paste;
 import com.zufarov.pastebinV1.pet.models.Permission;
-import com.zufarov.pastebinV1.pet.models.RequestModels.RequestPermission;
+import com.zufarov.pastebinV1.pet.dtos.PermissionDto;
 import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.repositories.PastesRepository;
 import com.zufarov.pastebinV1.pet.repositories.PermissionsRepository;
@@ -40,9 +40,9 @@ public class CacheService {
     }
 
 
-    @Cacheable(value = "permissionCache",key = "{#requestPermission.pasteId,#username}")
-    public Permission findPermission(RequestPermission requestPermission, String username) {
-        Optional<Paste> optionalPaste = pastesRepository.findById(requestPermission.getPasteId());
+    @Cacheable(value = "permissionCache",key = "{#permissionDto.pasteId,#username}")
+    public Permission findPermission(PermissionDto permissionDto, String username) {
+        Optional<Paste> optionalPaste = pastesRepository.findById(permissionDto.getPasteId());
         Optional<User> optionalUser = usersRepository.findByName(username);
         if (optionalUser.isEmpty() || optionalPaste.isEmpty()) {
             throw new NotFoundException("can't find user or paste");
