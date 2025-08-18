@@ -3,7 +3,9 @@ package com.zufarov.pastebinV1.pet.services;
 import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
 import com.zufarov.pastebinV1.pet.dtos.PasteResponseDto;
 import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
+import com.zufarov.pastebinV1.pet.mappers.PasteMapper;
 import com.zufarov.pastebinV1.pet.models.Paste;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,34 +13,20 @@ import java.io.IOException;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PasteService {
 
     private final TokenService tokenService;
     private final DataBaseService dataBaseService;
     private final StorageService storageService;
-
-    public PasteService(TokenService tokenService, DataBaseService dataBaseService, StorageService storageService) {
-        this.tokenService = tokenService;
-        this.dataBaseService = dataBaseService;
-        this.storageService = storageService;
-    }
+    private final PasteMapper pasteMapper;
 
     public PasteResponseDto getPaste(String pasteId) {
         Paste pasteMetadata = dataBaseService.getPasteMetadata(pasteId);
         try {
             String pasteContent = storageService.getPasteFromStorage(pasteId);
 
-            PasteResponseDto pasteResponseDto = new PasteResponseDto();
-
-            pasteResponseDto.setContent(pasteContent);
-            pasteResponseDto.setId(pasteMetadata.getId());
-            pasteResponseDto.setCreatedAt(pasteMetadata.getCreatedAt());
-            pasteResponseDto.setExpiresAt(pasteMetadata.getExpiresAt());
-            pasteResponseDto.setTitle(pasteMetadata.getTitle());
-            pasteResponseDto.setVisibility(pasteMetadata.getVisibility());
-            pasteResponseDto.setUserId(pasteMetadata.getOwner().getId());
-
-            return pasteResponseDto;
+            return pasteMapper.toPasteResponseDto(pasteMetadata,pasteContent);
         } catch (IOException e) {
             log.error("error during getting paste content");
         }

@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(name = "TokenRangeService", url = "${token-service.url}")
 public interface TokenClient {
     @GetMapping("/get-unique-id")
-    public ResponseEntity<String> getUniqueId();
+    ResponseEntity<String> getUniqueId();
 }

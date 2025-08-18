@@ -5,7 +5,7 @@ package com.zufarov.pastebinV1.pet.services;
 import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.repositories.UsersRepository;
 import com.zufarov.pastebinV1.pet.security.CustomUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,13 +15,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
     private final UsersRepository usersRepository;
-
-    @Autowired
-    public CustomUserDetailService(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
-    }
 
     @Override
     @Cacheable(value = "userCache")

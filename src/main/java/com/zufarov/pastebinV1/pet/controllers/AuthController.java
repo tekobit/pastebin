@@ -1,10 +1,9 @@
 package com.zufarov.pastebinV1.pet.controllers;
 
 import com.zufarov.pastebinV1.pet.dtos.UserRequestDto;
-import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.services.RegistrationService;
 import com.zufarov.pastebinV1.pet.util.UserValidator;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,24 +11,21 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final UserValidator userValidator;
     private final RegistrationService registrationService;
     private final JwtEncoder encoder;
-
-    @Autowired
-    public AuthController(UserValidator userValidator, RegistrationService registrationService, JwtEncoder encoder) {
-        this.userValidator = userValidator;
-        this.registrationService = registrationService;
-        this.encoder = encoder;
-    }
 
     @PostMapping("/registration")
     public ResponseEntity<Void> registration(@RequestBody UserRequestDto user) {

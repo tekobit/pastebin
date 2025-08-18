@@ -5,6 +5,7 @@ package com.zufarov.pastebinV1.pet.services;
 import com.zufarov.pastebinV1.pet.components.AuthenticationFacade;
 import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
 import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
+import com.zufarov.pastebinV1.pet.mappers.PasteMapper;
 import com.zufarov.pastebinV1.pet.models.Paste;
 import com.zufarov.pastebinV1.pet.models.Permission;
 import com.zufarov.pastebinV1.pet.models.User;
@@ -13,16 +14,16 @@ import com.zufarov.pastebinV1.pet.repositories.PermissionsRepository;
 import com.zufarov.pastebinV1.pet.util.ForbiddenException;
 import com.zufarov.pastebinV1.pet.util.NotFoundException;
 import com.zufarov.pastebinV1.pet.util.PermissionType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class DataBaseService {
     private final PastesRepository pastesRepository;
@@ -31,77 +32,54 @@ public class DataBaseService {
     private final AuthenticationFacade authenticationFacade;
     private final PermissionService permissionService;
     private final CacheService cacheService;
-
-    public DataBaseService(PastesRepository pastesRepository, CustomUserDetailService customUserDetailService, PermissionsRepository permissionsRepository, AuthenticationFacade authenticationFacade, PermissionService permissionService, CacheService cacheService) {
-        this.pastesRepository = pastesRepository;
-        this.customUserDetailService = customUserDetailService;
-        this.permissionsRepository = permissionsRepository;
-        this.authenticationFacade = authenticationFacade;
-        this.permissionService = permissionService;
-        this.cacheService = cacheService;
-    }
+    private final PasteMapper pasteMapper;
 
     @Transactional
-    public void savePasteMetadata(PasteRequestDto createRequestPaste, String pasteId, String Url) {
-        Paste paste = new Paste();
-        paste.setId(pasteId);
-        paste.setTitle(createRequestPaste.getTitle());
-        paste.setVisibility(createRequestPaste.getVisibility());
-        paste.setCreatedAt(java.time.LocalDateTime.now());
-        paste.setLastVisited(java.time.LocalDateTime.now());
-        paste.setExpiresAt(java.time.LocalDateTime.now());
+    public void savePasteMetadata(PasteRequestDto createRequestPaste, String pasteId, String url) {
+        Paste paste = pasteMapper.toPaste(createRequestPaste, pasteId);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
-        User currentUser = customUserDetailService.loadUserByUsername(currentPrincipalName).getUser();
+        String currenUsername = authenticationFacade.getAuthentication().getName();
+        User currentUser = customUserDetailService.loadUserByUsername(currenUsername).getUser();
+
         paste.setOwner(currentUser);
+        paste.setContentLocation(url);
 
-        paste.setContentLocation(Url);
         pastesRepository.save(paste);
-        permissionService.addOwner(currentUser.getId(), pasteId);
+        permissionService.addOwner(currentUser, paste);
         cacheService.putPasteMetadataToCache(paste, pasteId);
 
     }
 
 
-
+    @Transactional
     @Cacheable(value = "pasteMetadataCache")
     public Paste getPasteMetadata(String pasteId) {
-        Optional<Paste> optionalPaste = pastesRepository.findById(pasteId);
-        if (optionalPaste.isEmpty()) {
-            throw new NotFoundException("there isn't paste with such id");
-        }
-        Paste paste = optionalPaste.get();
+        Paste paste = pastesRepository.findById(pasteId).orElseThrow(() -> new NotFoundException("there isn't paste with such id"));
+
         checkIfUserHasRequiredPermission(paste,PermissionType.VIEWER);
         paste.setLastVisited(java.time.LocalDateTime.now());
-        pastesRepository.save(paste);
-        return  optionalPaste.get();
+
+        return paste;
     }
 
     @CacheEvict(value = "pasteMetadataCache")
     @Transactional
     public void deletePasteMetadata(String pasteId) {
-        Optional<Paste> optionalPaste = pastesRepository.findById(pasteId);
-        if (optionalPaste.isEmpty()) {
-            throw new NotFoundException("there isn't paste with such id");
-        }
-        Paste pasteToDelete = optionalPaste.get();
+        Paste pasteToDelete = pastesRepository.findById(pasteId).orElseThrow(() -> new NotFoundException("there isn't paste with such id"));
+
         checkIfUserHasRequiredPermission(pasteToDelete,PermissionType.OWNER);
+
         permissionsRepository.deletePermissionByPasteId(pasteId);
         pastesRepository.deleteById(pasteId);
     }
 
     @Transactional
     public void updatePasteMetadata(PasteUpdateDto pasteUpdateDto, String id) {
-        Optional<Paste> optionalPaste = pastesRepository.findById(id);
-        if (optionalPaste.isEmpty()) {
-            throw new NotFoundException("there isn't paste with such id");
-        }
-        Paste pasteToUpdate = optionalPaste.get();
+        Paste pasteToUpdate = pastesRepository.findById(id).orElseThrow(() -> new NotFoundException("there isn't paste with such id"));
+
+        pasteMapper.updatePaste(pasteUpdateDto,pasteToUpdate);
+
         checkIfUserHasRequiredPermission(pasteToUpdate,PermissionType.EDITOR);
-        pasteToUpdate.setExpiresAt(pasteUpdateDto.getExpiresAt());
-        pasteToUpdate.setTitle(pasteUpdateDto.getTitle());
-        pasteToUpdate.setVisibility(pasteUpdateDto.getVisibility());
         pastesRepository.save(pasteToUpdate);
         cacheService.putPasteMetadataToCache(pasteToUpdate, pasteToUpdate.getId());
     }

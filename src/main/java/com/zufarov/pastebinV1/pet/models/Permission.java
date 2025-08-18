@@ -62,4 +62,5 @@ public class Permission implements Serializable {
         this.user = user;
         this.paste = paste;
     }
+
 }

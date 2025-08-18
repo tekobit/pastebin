@@ -2,14 +2,15 @@
 
 package com.zufarov.pastebinV1.pet.services;
 
+import com.zufarov.pastebinV1.pet.dtos.PermissionDto;
 import com.zufarov.pastebinV1.pet.models.Paste;
 import com.zufarov.pastebinV1.pet.models.Permission;
-import com.zufarov.pastebinV1.pet.dtos.PermissionDto;
 import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.repositories.PastesRepository;
 import com.zufarov.pastebinV1.pet.repositories.PermissionsRepository;
 import com.zufarov.pastebinV1.pet.repositories.UsersRepository;
 import com.zufarov.pastebinV1.pet.util.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -17,17 +18,12 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CacheService {
 
-    PastesRepository pastesRepository;
-    UsersRepository usersRepository;
-    PermissionsRepository permissionsRepository;
-
-    public CacheService(PastesRepository pastesRepository, UsersRepository usersRepository, PermissionsRepository permissionsRepository) {
-        this.pastesRepository = pastesRepository;
-        this.usersRepository = usersRepository;
-        this.permissionsRepository = permissionsRepository;
-    }
+    private final PastesRepository pastesRepository;
+    private final UsersRepository usersRepository;
+    private final PermissionsRepository permissionsRepository;
 
     @CachePut(value = "pasteContentCache",key="#pasteId")
     public String putPasteContentToCache(String content, String pasteId) {
@@ -42,7 +38,7 @@ public class CacheService {
 
     @Cacheable(value = "permissionCache",key = "{#permissionDto.pasteId,#username}")
     public Permission findPermission(PermissionDto permissionDto, String username) {
-        Optional<Paste> optionalPaste = pastesRepository.findById(permissionDto.getPasteId());
+        Optional<Paste> optionalPaste = pastesRepository.findById(permissionDto.pasteId());
         Optional<User> optionalUser = usersRepository.findByName(username);
         if (optionalUser.isEmpty() || optionalPaste.isEmpty()) {
             throw new NotFoundException("can't find user or paste");
