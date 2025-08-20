@@ -2,9 +2,7 @@
 
 package com.zufarov.pastebinV1.pet.services;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.util.IOUtils;
+
 import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
 import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.io.IOException;
 
@@ -24,28 +26,48 @@ public class StorageService {
     @Value("${application.bucket.name}")
     private String bucketName;
 
-    private final AmazonS3 s3Client;
+    private final S3Client s3Client;
     private final CacheService cacheService;
 
     public String uploadPasteToStorage(PasteRequestDto paste, String fileName) {
-        s3Client.putObject(bucketName, fileName, paste.content());
+        s3Client.putObject(req -> req
+                .bucket(bucketName)
+                .key(fileName),
+                RequestBody.fromString(paste.content())
+        );
         cacheService.putPasteContentToCache(paste.content(),fileName);
-        return String.valueOf(s3Client.getUrl(bucketName,fileName));
+        return String.valueOf(s3Client.utilities().getUrl(req -> req
+                .bucket(bucketName)
+                .key(fileName))
+        );
+
     }
 
     @Cacheable(value = "pasteContentCache")
     public String getPasteFromStorage(String pasteId) throws IOException {
-        S3Object s3Object = s3Client.getObject(bucketName, pasteId);
-        return IOUtils.toString(s3Object.getObjectContent());
+        ResponseInputStream<GetObjectResponse> response = s3Client.getObject(req -> req
+                .bucket(bucketName)
+                .key(pasteId)
+        );
+
+        return response.toString();
     }
 
     @CacheEvict(value = "pasteContentCache")
     public void deletePasteFromStorage(String pasteId) {
-        s3Client.deleteObject(bucketName,pasteId);
+        s3Client.deleteObject(req -> {
+            req.bucket(bucketName)
+            .key(pasteId);
+        });
     }
 
     public void updatePasteInStorage(PasteUpdateDto paste, String id) {
-        s3Client.putObject(bucketName,id,paste.content());
+        s3Client.putObject(req -> req
+                .bucket(bucketName)
+                .key(id),
+                RequestBody.fromString(paste.content())
+        );
+
         cacheService.putPasteContentToCache(paste.content(),id);
     }
 

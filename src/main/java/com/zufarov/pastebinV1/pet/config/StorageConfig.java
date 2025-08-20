@@ -1,10 +1,14 @@
 package com.zufarov.pastebinV1.pet.config;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.endpoints.EndpointProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Configuration
 public class StorageConfig {
@@ -16,13 +20,14 @@ public class StorageConfig {
     private String region;
 
     @Bean
-    public AmazonS3 generateS3Client() {
-        return AmazonS3ClientBuilder.standard().withEndpointConfiguration(
-                new AmazonS3ClientBuilder.EndpointConfiguration(
-                        endpoint, region
-                )
+    public S3Client generateS3Client() throws URISyntaxException {
+        Region regionS3 = Region.of(region);
+        URI endpoinUri = new URI(endpoint);
 
-        ).build();
+        return S3Client.builder()
+                .region(regionS3)
+                .endpointOverride(endpoinUri)
+                .build();
 
     }
 }
