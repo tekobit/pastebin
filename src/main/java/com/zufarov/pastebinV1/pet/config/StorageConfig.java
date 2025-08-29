@@ -3,6 +3,8 @@ package com.zufarov.pastebinV1.pet.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.endpoints.EndpointProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -19,6 +21,13 @@ public class StorageConfig {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    @Value("${cloud.aws.credentials.access-key}")
+    private String accessKey;
+
+    @Value("${cloud.aws.credentials.secret-key}")
+    private String secretKey;
+
+
     @Bean
     public S3Client generateS3Client() throws URISyntaxException {
         Region regionS3 = Region.of(region);
@@ -27,6 +36,9 @@ public class StorageConfig {
         return S3Client.builder()
                 .region(regionS3)
                 .endpointOverride(endpoinUri)
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)
+                ))
                 .build();
 
     }

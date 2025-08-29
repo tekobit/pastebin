@@ -1,17 +1,19 @@
 package com.zufarov.pastebinV1.pet.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Users", schema = "public")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,5 +49,27 @@ public class User implements Serializable {
     public User(String name, String email) {
         this.name = name;
         this.email = email;
+    }
+
+    public User(String name, String email, String password, LocalDateTime createdAt, LocalDateTime lastLogin, String role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.lastLogin = lastLogin;
+        this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != 0 && id == user.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != 0 ? Objects.hash(id) : System.identityHashCode(this);
     }
 }

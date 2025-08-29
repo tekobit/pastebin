@@ -8,6 +8,7 @@ import org.springframework.lang.NonNull;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +29,6 @@ public class Paste implements Serializable {
     @Column(name = "content_location")
     private String contentLocation;
 
-
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
@@ -40,6 +40,30 @@ public class Paste implements Serializable {
 
     @Column(name = "last_visited", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastVisited;
+
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt.truncatedTo(ChronoUnit.MICROS);
+    }
+
+    public void setLastVisited(LocalDateTime lastVisited) {
+        this.lastVisited = lastVisited.truncatedTo(ChronoUnit.MICROS);
+    }
+
+    public Paste(String id, String title, String contentLocation, LocalDateTime createdAt, LocalDateTime expiresAt, String visibility, LocalDateTime lastVisited, User owner) {
+        this.id = id;
+        this.title = title;
+        this.contentLocation = contentLocation;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+        this.visibility = visibility;
+        this.lastVisited = lastVisited;
+        this.owner = owner;
+    }
 
     // connect to users table
     @OneToMany(mappedBy = "paste")
@@ -59,9 +83,6 @@ public class Paste implements Serializable {
                 ", createdAt=" + createdAt +
                 ", expiresAt=" + expiresAt +
                 ", visibility='" + visibility + '\'' +
-                ", lastVisited=" + lastVisited +
-                ", permissions=" + permissions +
-                ", owner=" + owner +
                 '}';
     }
 
@@ -69,12 +90,12 @@ public class Paste implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Paste paste = (Paste) o;
-        return Objects.equals(id, paste.id) && Objects.equals(title, paste.title) && Objects.equals(contentLocation, paste.contentLocation) && Objects.equals(createdAt, paste.createdAt) && Objects.equals(expiresAt, paste.expiresAt) && Objects.equals(visibility, paste.visibility) && Objects.equals(lastVisited, paste.lastVisited) && Objects.equals(permissions, paste.permissions) && Objects.equals(owner, paste.owner);
+        return Objects.equals(id, paste.id) && Objects.equals(title, paste.title) && Objects.equals(contentLocation, paste.contentLocation) && Objects.equals(createdAt, paste.createdAt) && Objects.equals(expiresAt, paste.expiresAt) && Objects.equals(visibility, paste.visibility) && Objects.equals(owner, paste.owner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, contentLocation, createdAt, expiresAt, visibility, lastVisited, permissions, owner);
+        return Objects.hash(id, title, contentLocation, createdAt, expiresAt, visibility,  owner);
     }
 
 }

@@ -50,7 +50,7 @@ public class DataBaseService {
 
     }
 
-
+    //TODO add check if paste is expired
     @Transactional
     @Cacheable(value = "pasteMetadataCache")
     public Paste getPasteMetadata(String pasteId) {
@@ -88,16 +88,18 @@ public class DataBaseService {
         if (paste.getVisibility().equals("private") || requiredPermission.equals(PermissionType.EDITOR) || requiredPermission.equals(PermissionType.OWNER)) {
             List<Permission> permissions = paste.getPermissions();
             Authentication currentUser = authenticationFacade.getAuthentication();
-            String currentUserName;
+
             if (currentUser == null) {
-                currentUserName = "System";
-            } else {
-                currentUserName = currentUser.getName();
+                throw new ForbiddenException("user has no access");
             }
+
+            String currentUserName = currentUser.getName();
+            if (currentUserName.equals("System")) return;
+
             boolean userHasAccess = false;
             int permissionLevel = requiredPermission.ordinal();
             for (Permission permission : permissions) {
-                if ((permission.getUser().getName().equals(currentUserName) || currentUserName.equals("System")) && PermissionType.valueOf(permission.getType()).ordinal() >= permissionLevel) {
+                if (permission.getUser().getName().equals(currentUserName) && PermissionType.valueOf(permission.getType()).ordinal() >= permissionLevel) {
                     userHasAccess = true;
                 }
             }
