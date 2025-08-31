@@ -29,11 +29,12 @@ public class PermissionService {
     private final AuthenticationFacade authenticationFacade;
     private final CacheService cacheService;
     private final PermissionMapperService permissionMapperService;
+    private final PermissionFinder permissionFinder;
 
 
     @Transactional
     public String savePermission(PermissionDto permissionDto) {
-        checkIfCurrentUserOwner(cacheService.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
+        checkIfCurrentUserOwner(permissionFinder.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
         checkIfPermissionAlreadyExists(permissionDto);
 
         Permission permission = permissionMapperService.toPermission(permissionDto);
@@ -43,9 +44,9 @@ public class PermissionService {
 
     @Transactional
     public String editPermission(PermissionDto permissionDto) {
-        checkIfCurrentUserOwner(cacheService.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
+        checkIfCurrentUserOwner(permissionFinder.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
 
-        Permission permission = cacheService.findPermission(permissionDto, permissionDto.username());
+        Permission permission = permissionFinder.findPermission(permissionDto, permissionDto.username());
         permission.setType(permissionDto.type());
 
         permissionsRepository.save(permission);
@@ -56,9 +57,9 @@ public class PermissionService {
     @Transactional
     @CacheEvict(value = "permissionCache",key = "{#permissionDto.pasteId,#permissionDto.username}")
     public String deletePermission(PermissionDto permissionDto) {
-        checkIfCurrentUserOwner(cacheService.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
+        checkIfCurrentUserOwner(permissionFinder.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
 
-        Permission permission = cacheService.findPermission(permissionDto, permissionDto.username());
+        Permission permission = permissionFinder.findPermission(permissionDto, permissionDto.username());
         permissionsRepository.deletePermissionById(permission.getId());
         return "permission has been successfully deleted";
     }
@@ -88,6 +89,9 @@ public class PermissionService {
             throw new ForbiddenException("such permission already exists");
         }
     }
+
+
+
 
 }
 

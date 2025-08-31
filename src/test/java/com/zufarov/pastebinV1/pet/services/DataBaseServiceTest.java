@@ -4,7 +4,6 @@ import com.redis.testcontainers.RedisContainer;
 import com.zufarov.pastebinV1.pet.components.AuthenticationFacade;
 import com.zufarov.pastebinV1.pet.dtos.PasteRequestDto;
 import com.zufarov.pastebinV1.pet.dtos.PasteUpdateDto;
-import com.zufarov.pastebinV1.pet.mappers.PermissionMapperService;
 import com.zufarov.pastebinV1.pet.models.Paste;
 import com.zufarov.pastebinV1.pet.models.Permission;
 import com.zufarov.pastebinV1.pet.models.User;

@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Entity
@@ -36,6 +37,11 @@ public class Permission implements Serializable {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt.truncatedTo(ChronoUnit.MICROS);
+    }
+
+
     @Override
     public String toString() {
         return "Permission{" +
@@ -50,7 +56,7 @@ public class Permission implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Permission that = (Permission) o;
-        return id == that.id && Objects.equals(createdAt, that.createdAt) && Objects.equals(paste, that.paste) && Objects.equals(user, that.user);
+        return id == that.id && Objects.equals(createdAt, that.createdAt) && Objects.equals(paste.getId(), that.paste.getId()) && Objects.equals(user.getId(), that.user.getId());
     }
 
     @Override
