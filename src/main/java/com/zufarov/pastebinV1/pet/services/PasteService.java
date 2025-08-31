@@ -37,7 +37,7 @@ public class PasteService {
         String fileName = tokenService.getUniqueId();
         String pasteURL = storageService.uploadPasteToStorage(paste,fileName);
         dataBaseService.savePasteMetadata(paste,fileName,pasteURL);
-        return fileName + " was successfully saved!";
+        return fileName + " was successfully saved";
     }
 
     public String deletePaste(String pasteId) {
