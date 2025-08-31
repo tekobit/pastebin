@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class CustomUserDetailService implements UserDetailsService {
         return new CustomUserDetails(user.get());
     }
     @CacheEvict(value = "userCache")
+    @Transactional
     public void deleteUser(String username) {
         usersRepository.deleteUserByName(username);
     }
