@@ -21,7 +21,7 @@ public class PermissionFinder {
     private final UsersRepository usersRepository;
     private final PastesRepository pastesRepository;
 
-    @Cacheable(value = "permissionCache",key = "{#permissionDto.pasteId,#username}")
+    @Cacheable(value = "permissionCache",key = "#permissionDto.pasteId+'_'+#username")
     public Permission findPermission(PermissionDto permissionDto, String username) {
         Optional<Paste> optionalPaste = pastesRepository.findById(permissionDto.pasteId());
         Optional<User> optionalUser = usersRepository.findByName(username);

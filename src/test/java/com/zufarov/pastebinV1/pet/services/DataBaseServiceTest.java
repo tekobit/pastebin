@@ -47,7 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest
-@AutoConfigureMockMvc
 class DataBaseServiceTest {
     @Autowired
     private UsersRepository usersRepository;

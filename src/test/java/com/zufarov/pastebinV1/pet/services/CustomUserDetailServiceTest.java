@@ -105,7 +105,6 @@ class CustomUserDetailServiceTest {
 
     }
 
-
     private @NotNull User createAndSaveUser(String name, String email) {
         User user = new User(name,email,"password", LocalDateTime.now(), LocalDateTime.now(),"ROLE_USER");
         usersRepository.save(user);

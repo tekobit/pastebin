@@ -44,9 +44,15 @@ class CacheServiceTest {
 
     private final String pasteId = "id";
 
+    // need counters to create correctly entities permission and users without repository, because of GenerationType.IDENTITY
+    private int userCounter;
+    private int permissionCounter;
+
     @BeforeEach
     void setUp() {
         cacheManager.getCacheNames().forEach(e -> cacheManager.getCache(e).clear());
+        userCounter = 1;
+        permissionCounter = 1;
     }
 
     @Nested
@@ -188,7 +194,7 @@ class CacheServiceTest {
 
     private @NotNull User createUser(String name, String email) {
         User user = new User(name,email,"password", LocalDateTime.now(), LocalDateTime.now(),"ROLE_USER");
-        user.setId(1);
+        user.setId(userCounter++);
         return user;
     }
 
@@ -219,6 +225,7 @@ class CacheServiceTest {
 
     private Permission createPermission(User user, Paste paste, PermissionType permissionType) {
         Permission permission = new Permission(user,paste);
+        permission.setId(permissionCounter++);
         permission.setType(permissionType.name());
         permission.setCreatedAt(LocalDateTime.now());
         return permission;

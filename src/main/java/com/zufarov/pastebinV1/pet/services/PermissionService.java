@@ -55,7 +55,7 @@ public class PermissionService {
     }
 
     @Transactional
-    @CacheEvict(value = "permissionCache",key = "{#permissionDto.pasteId,#permissionDto.username}")
+    @CacheEvict(value = "permissionCache",key = "#permissionDto.pasteId+'_'+#permissionDto.username")
     public String deletePermission(PermissionDto permissionDto) {
         checkIfCurrentUserOwner(permissionFinder.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
 
