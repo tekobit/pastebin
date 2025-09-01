@@ -9,8 +9,10 @@ import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.repositories.PastesRepository;
 import com.zufarov.pastebinV1.pet.repositories.PermissionsRepository;
 import com.zufarov.pastebinV1.pet.repositories.UsersRepository;
+import com.zufarov.pastebinV1.pet.util.BadRequestException;
 import com.zufarov.pastebinV1.pet.util.ForbiddenException;
 import com.zufarov.pastebinV1.pet.util.NotFoundException;
+import com.zufarov.pastebinV1.pet.util.PermissionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-//TODO add checks e.g. if user the only owner, he cant delete his permission or make him editor/viewer
 
 @RequiredArgsConstructor
 @Service
@@ -45,6 +46,9 @@ public class PermissionService {
     @Transactional
     public String editPermission(PermissionDto permissionDto) {
         checkIfCurrentUserOwner(permissionFinder.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
+        if (permissionDto.username().equals(authenticationFacade.getAuthentication().getName()) && isUserOnlyOwner(permissionDto)) {
+            throw  new BadRequestException("You are not allowed to edit this permission");
+        }
 
         Permission permission = permissionFinder.findPermission(permissionDto, permissionDto.username());
         permission.setType(permissionDto.type());
@@ -58,12 +62,15 @@ public class PermissionService {
     @CacheEvict(value = "permissionCache",key = "#permissionDto.pasteId+'_'+#permissionDto.username")
     public String deletePermission(PermissionDto permissionDto) {
         checkIfCurrentUserOwner(permissionFinder.findPermission(permissionDto,authenticationFacade.getAuthentication().getName()));
-
+        if (permissionDto.username().equals(authenticationFacade.getAuthentication().getName()) && isUserOnlyOwner(permissionDto)) {
+            throw  new ForbiddenException("You are not allowed to delete this permission");
+        }
         Permission permission = permissionFinder.findPermission(permissionDto, permissionDto.username());
         permissionsRepository.deletePermissionById(permission.getId());
         return "permission has been successfully deleted";
     }
 
+    //need this only to create first owner permission for new paste
     public void addOwner(User user, Paste paste) {
         Permission permission = permissionMapperService.createOwnerPermission(user, paste);
 
@@ -78,6 +85,10 @@ public class PermissionService {
         }
     }
 
+    private boolean isUserOnlyOwner(PermissionDto permissionDto) {
+        return permissionsRepository.findAllByPaste_IdAndType(permissionDto.pasteId(), PermissionType.OWNER.name()).size() == 1;
+    }
+
     private void checkIfPermissionAlreadyExists(PermissionDto permissionDto) {
         Optional<Paste> optionalPaste = pastesRepository.findById(permissionDto.pasteId());
         Optional<User> optionalUser = usersRepository.findByName(permissionDto.username());
@@ -89,9 +100,5 @@ public class PermissionService {
             throw new ForbiddenException("such permission already exists");
         }
     }
-
-
-
-
 }
 
