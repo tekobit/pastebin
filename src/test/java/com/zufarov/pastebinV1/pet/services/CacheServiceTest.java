@@ -226,7 +226,7 @@ class CacheServiceTest {
     private Permission createPermission(User user, Paste paste, PermissionType permissionType) {
         Permission permission = new Permission(user,paste);
         permission.setId(permissionCounter++);
-        permission.setType(permissionType.name());
+        permission.setType(permissionType);
         permission.setCreatedAt(LocalDateTime.now());
         return permission;
     }

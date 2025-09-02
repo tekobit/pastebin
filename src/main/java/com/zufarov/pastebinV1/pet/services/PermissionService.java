@@ -79,8 +79,8 @@ public class PermissionService {
     }
 
     private void checkIfCurrentUserOwner(Permission currentUserPermission) {
-        String currentUserPermissionType = currentUserPermission.getType();
-        if (!currentUserPermissionType.equals("OWNER")) {
+        PermissionType currentUserPermissionType = currentUserPermission.getType();
+        if (!currentUserPermissionType.equals(PermissionType.OWNER)) {
             throw new ForbiddenException("User has no access to this feature");
         }
     }

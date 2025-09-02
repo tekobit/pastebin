@@ -7,6 +7,7 @@ import com.zufarov.pastebinV1.pet.models.User;
 import com.zufarov.pastebinV1.pet.repositories.PastesRepository;
 import com.zufarov.pastebinV1.pet.repositories.UsersRepository;
 import com.zufarov.pastebinV1.pet.util.NotFoundException;
+import com.zufarov.pastebinV1.pet.util.PermissionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ public class PermissionMapperService {
     public Permission createOwnerPermission(User user, Paste paste) {
         Permission permission = new Permission(user,paste);
         permission.setCreatedAt(java.time.LocalDateTime.now());
-        permission.setType("OWNER");
+        permission.setType(PermissionType.OWNER);
 
         return permission;
     }

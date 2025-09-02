@@ -382,7 +382,7 @@ class DataBaseServiceTest {
 
     private void createAndSavePermission(User user, Paste paste, PermissionType permissionType) {
         Permission permission = new Permission(user,paste);
-        permission.setType(permissionType.name());
+        permission.setType(permissionType);
         permissionsRepository.save(permission);
     }
 }

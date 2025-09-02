@@ -18,6 +18,8 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+//TODO переименуй методы
+
 @ExtendWith(MockitoExtension.class)
 class PasteServiceTest {
     @Mock

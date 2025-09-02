@@ -143,14 +143,14 @@ class PermissionFinderTest {
         }
         @Test
         void findPermission_ShouldReturnNotFoundException_WhenPasteDoesNotExist() {
-            PermissionDto permissionDto = new PermissionDto(PermissionType.OWNER.name(),NON_EXISTENT_PASTE_ID,null);
+            PermissionDto permissionDto = new PermissionDto(PermissionType.OWNER,NON_EXISTENT_PASTE_ID,null);
 
             assertThrows(NotFoundException.class,() -> permissionFinder.findPermission(permissionDto,userName));
         }
 
         @Test
         void findPermission_ShouldReturnNotFoundException_WhenPermissionDoesNotExist() {
-            PermissionDto permissionDto = new PermissionDto(PermissionType.OWNER.name(),paste.getId(),null);
+            PermissionDto permissionDto = new PermissionDto(PermissionType.OWNER,paste.getId(),null);
 
             assertThrows(NotFoundException.class,() -> permissionFinder.findPermission(permissionDto,userName));
         }
@@ -179,7 +179,7 @@ class PermissionFinderTest {
 
     private Permission createAndSavePermission(User user, Paste paste, PermissionType permissionType) {
         Permission permission = new Permission(user,paste);
-        permission.setType(permissionType.name());
+        permission.setType(permissionType);
         permissionsRepository.save(permission);
         return permission;
     }

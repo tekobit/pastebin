@@ -1,5 +1,6 @@
 package com.zufarov.pastebinV1.pet.models;
 
+import com.zufarov.pastebinV1.pet.util.PermissionType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,8 +25,9 @@ public class Permission implements Serializable {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private String type;
+    private PermissionType type;
 
     //connect to pastes table
     @ManyToOne

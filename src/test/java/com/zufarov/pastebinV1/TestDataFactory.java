@@ -41,7 +41,7 @@ public class TestDataFactory {
         );
     }
 
-    public static PermissionDto createPermissionDto(User user, Paste paste, String type) {
+    public static PermissionDto createPermissionDto(User user, Paste paste, PermissionType type) {
         return new PermissionDto(
                 type,
                 paste.getId(),

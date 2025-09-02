@@ -99,8 +99,9 @@ public class DataBaseService {
             boolean userHasAccess = false;
             int permissionLevel = requiredPermission.ordinal();
             for (Permission permission : permissions) {
-                if (permission.getUser().getName().equals(currentUserName) && PermissionType.valueOf(permission.getType()).ordinal() >= permissionLevel) {
+                if (permission.getUser().getName().equals(currentUserName) && permission.getType().ordinal() >= permissionLevel) {
                     userHasAccess = true;
+                    break;
                 }
             }
             if (!userHasAccess) {
