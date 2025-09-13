@@ -70,7 +70,7 @@ public class PermissionService {
         return "permission has been successfully deleted";
     }
 
-    //need this only to create first owner permission for new paste
+    //need this only to create first owner-permission for new paste
     public void addOwner(User user, Paste paste) {
         Permission permission = permissionMapperService.createOwnerPermission(user, paste);
 
@@ -86,7 +86,7 @@ public class PermissionService {
     }
 
     private boolean isUserOnlyOwner(PermissionDto permissionDto) {
-        return permissionsRepository.findAllByPaste_IdAndType(permissionDto.pasteId(), PermissionType.OWNER.name()).size() == 1;
+        return permissionsRepository.findAllByPaste_IdAndType(permissionDto.pasteId(), PermissionType.OWNER).size() == 1;
     }
 
     private void checkIfPermissionAlreadyExists(PermissionDto permissionDto) {
@@ -97,7 +97,7 @@ public class PermissionService {
         }
         Optional<Permission> optionalPermission = permissionsRepository.findByPasteAndUser(optionalPaste.get(),optionalUser.get());
         if (optionalPermission.isPresent()) {
-            throw new ForbiddenException("such permission already exists");
+            throw new BadRequestException("such permission already exists");
         }
     }
 }
