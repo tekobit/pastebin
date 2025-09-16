@@ -26,28 +26,35 @@ public class StorageService {
     @Value("${application.bucket.name}")
     private String bucketName;
 
+    @Value("${application.bucket.prefix}")
+    private String bucketPrefix;
+
     private final S3Client s3Client;
     private final CacheService cacheService;
 
     public String uploadPasteToStorage(PasteRequestDto paste, String fileName) {
+        String objectKey = bucketPrefix + fileName;
+
         s3Client.putObject(req -> req
                 .bucket(bucketName)
-                .key(fileName),
+                .key(objectKey),
                 RequestBody.fromString(paste.content())
         );
         cacheService.putPasteContentToCache(paste.content(),fileName);
         return String.valueOf(s3Client.utilities().getUrl(req -> req
                 .bucket(bucketName)
-                .key(fileName))
+                .key(objectKey))
         );
 
     }
 
     @Cacheable(value = "pasteContentCache")
     public String getPasteFromStorage(String pasteId) throws IOException {
+        String objectKey = bucketPrefix + pasteId;
+
         ResponseInputStream<GetObjectResponse> response = s3Client.getObject(req -> req
                 .bucket(bucketName)
-                .key(pasteId)
+                .key(objectKey)
         );
 
         return response.toString();
@@ -55,16 +62,20 @@ public class StorageService {
 
     @CacheEvict(value = "pasteContentCache")
     public void deletePasteFromStorage(String pasteId) {
+        String objectKey = bucketPrefix + pasteId;
+
         s3Client.deleteObject(req -> {
             req.bucket(bucketName)
-            .key(pasteId);
+            .key(objectKey);
         });
     }
 
     public void updatePasteInStorage(PasteUpdateDto paste, String id) {
+        String objectKey = bucketPrefix + id;
+
         s3Client.putObject(req -> req
                 .bucket(bucketName)
-                .key(id),
+                .key(objectKey),
                 RequestBody.fromString(paste.content())
         );
 
