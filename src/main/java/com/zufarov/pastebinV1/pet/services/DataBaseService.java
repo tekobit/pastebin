@@ -15,6 +15,8 @@ import com.zufarov.pastebinV1.pet.util.ForbiddenException;
 import com.zufarov.pastebinV1.pet.util.NotFoundException;
 import com.zufarov.pastebinV1.pet.util.PermissionType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
@@ -33,6 +35,7 @@ public class DataBaseService {
     private final PermissionService permissionService;
     private final CacheService cacheService;
     private final PasteMapper pasteMapper;
+    private final CacheManager cacheManager;
 
     @Transactional
     public void savePasteMetadata(PasteRequestDto createRequestPaste, String pasteId, String url) {
@@ -52,14 +55,21 @@ public class DataBaseService {
 
     //TODO add check if paste is expired
     @Transactional
-    @Cacheable(value = "pasteMetadataCache")
+//    @Cacheable(value = "pasteMetadataCache")
     public Paste getPasteMetadata(String pasteId) {
-        Paste paste = pastesRepository.findById(pasteId).orElseThrow(() -> new NotFoundException("there isn't paste with such id"));
+        Cache pasteMetadataCache = cacheManager.getCache("pasteMetadataCache");
+        Paste paste = pasteMetadataCache.get(pasteId, Paste.class);
+
+        if (paste == null) {
+            paste = pastesRepository.findById(pasteId).orElseThrow(() -> new NotFoundException("there isn't paste with such id"));
+        }
 
         checkIfUserHasRequiredPermission(paste,PermissionType.VIEWER);
         paste.setLastVisited(java.time.LocalDateTime.now());
 
-        return paste;
+        pasteMetadataCache.put(pasteId, paste);
+
+        return pastesRepository.save(paste);
     }
 
     @CacheEvict(value = "pasteMetadataCache")

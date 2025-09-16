@@ -82,7 +82,8 @@ public class Paste implements Serializable {
                 ", contentLocation='" + contentLocation + '\'' +
                 ", createdAt=" + createdAt +
                 ", expiresAt=" + expiresAt +
-                ", visibility='" + visibility + '\'' +
+                ", visibility='" + visibility  +
+                ", owner=," + owner.getId() + '\''+
                 '}';
     }
 

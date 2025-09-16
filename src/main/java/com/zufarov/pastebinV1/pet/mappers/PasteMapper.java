@@ -14,6 +14,7 @@ public interface PasteMapper {
     Paste toPaste(PasteRequestDto pasteRequestDto, String pasteId);
 
     @Mapping(target = "content",expression = "java(pasteContent)")
+    @Mapping(target = "userId",expression = "java(paste.getOwner().getId())")
     PasteResponseDto toPasteResponseDto(Paste paste,String pasteContent);
 
     void updatePaste(PasteUpdateDto  pasteUpdateDto,@MappingTarget Paste paste);

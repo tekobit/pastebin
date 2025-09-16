@@ -57,7 +57,9 @@ public class StorageService {
                 .key(objectKey)
         );
 
-        return response.toString();
+        try (response) {
+            return new String(response.readAllBytes());
+        }
     }
 
     @CacheEvict(value = "pasteContentCache")
